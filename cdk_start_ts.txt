@@ -1,0 +1,24 @@
+# 1. 新しいディレクトリ作成
+mkdir cdk-ts-app && cd cdk-ts-app
+
+# 2. 初期化（TypeScript）
+cdk init app --language=typescript
+
+# 3. 依存関係インストール（必要に応じて追加）
+npm install @aws-cdk/aws-ec2 @aws-cdk/aws-s3 @aws-cdk/aws-iam \
+            @aws-cdk/aws-efs @aws-cdk/aws-lambda @aws-cdk/aws-logs \
+            @aws-cdk/aws-elasticloadbalancingv2 @aws-cdk/aws-events \
+            @aws-cdk/aws-events-targets @aws-cdk/aws-secretsmanager
+
+暫定的に22.15で実行
+
+# 1. Node.js がインストールされていない場合
+# https://nodejs.org/ja にアクセスして最新版LTSをダウンロード
+
+# 2. CDK CLI のインストール
+npm install -g aws-cdk
+
+# 3. プロジェクト初期化
+mkdir my-ts-app && cd my-ts-app
+cdk init app --language=typescript
+
