@@ -1,0 +1,1 @@
+Compress-Archive -Path .\lambda\auth\* -DestinationPath lambda.zip -Force

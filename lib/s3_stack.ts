@@ -10,7 +10,7 @@ export class S3Stack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
         super(scope, id, props);
 
-        const bucketName = "my-explicit-s3-bucket";
+        const bucketName = "lambda-bucket-" + this.account + "-" + this.region;
 
         const bucket = new s3.CfnBucket(this, "MyBucket", {
             bucketName: bucketName,
@@ -56,14 +56,14 @@ export class S3Stack extends Stack {
 
 
         // 出力
-        new CfnOutput(this, "BucketName", {
+        new CfnOutput(this, "S3BucketName", {
             value: bucket.ref,
-            exportName: "MyBucketName",
+            exportName: "LambdaBucketName",
         });
 
         new CfnOutput(this, "S3BucketArn", {
             value: `arn:aws:s3:::${bucketName}`,
-            exportName: "S3BucketArn"
+            exportName: "LambdaBucketArn",
         });
     }
 }

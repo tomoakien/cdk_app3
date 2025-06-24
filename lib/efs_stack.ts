@@ -34,12 +34,14 @@ export class EfsStack extends Stack {
         const mt1 = new efs.CfnMountTarget(this, "EfsMountTarget1", {
             fileSystemId: fileSystem.ref,
             subnetId: privateSubnetIds[0],
+            ipAddress: "10.0.3.10",
             securityGroups: [efsSGId],
         });
 
         const mt2 = new efs.CfnMountTarget(this, "EfsMountTarget2", {
             fileSystemId: fileSystem.ref,
             subnetId: privateSubnetIds[1],
+            ipAddress: "10.0.4.10",
             securityGroups: [efsSGId],
         });
 
