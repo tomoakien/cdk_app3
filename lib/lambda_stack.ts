@@ -48,16 +48,32 @@ export class LambdaStack extends Stack {
         });
 
         // Lambda関数を作成
+        //　関数名から自動的にロググループ名を決定する。
         const authlambda = new lambda.CfnFunction(this, 'FtpAuthFunction', {
             functionName: 'FtpAuthFunction', 
-            runtime: 'python3.11', // ランタイムの指定
-            handler: 'auth_ftp.handler', // ハンドラーの指定
+            runtime: 'python3.13', // ランタイムの指定
+            handler: 'index.handler', // ハンドラーの指定
             role: lambdaRole.attrArn, // IAMロールのARNを指定
+            memorySize: 128, // メモリサイズの指定
+            timeout: 60, // タイムアウトの指定
+            packageType: 'Zip', // パッケージタイプの指定
+            tracingConfig: {
+                mode: 'Active', // X-Rayトレースを有効化
+            },
+            runtimeManagementConfig: {
+                updateRuntimeOn: 'Manual', // ランタイムの自動更新を有効化
+                runtimeVersionArn: 'arn:aws:lambda:ap-northeast-1::runtime:f10b100a00b6c2fc7052100b08a13d8c6dc4176c7c01a522d2fb9c948bab31f0', // ランタイムのバージョンを指定
+            },
             code: {
                   //S3にアップしたコードを指定
                     s3Bucket: bucketName,
                     s3Key: 'auth/lambda.zip',
             },
+            tags: [{
+                key: 'Name',
+                value: 'FtpAuthFunction'
+            }],
+            description: 'Lambda function for FTP authentication',
         });
 
         //SSMへ出力

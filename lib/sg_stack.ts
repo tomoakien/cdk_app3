@@ -42,6 +42,14 @@ export class SgStack extends Stack {
             securityGroupEgress: [],
         });
 
+        // Transfer Family用のセキュリティグループを作成
+        const transferSg = new ec2.CfnSecurityGroup(this, 'TransferSG', {
+            vpcId: vpcId,
+            groupDescription: 'Security group for Transfer',
+            tags: [{key: 'Name', value: 'TransferSG'}],
+            securityGroupEgress: [],
+        });
+
         // 出力
         new CfnOutput(this, 'AlbSGId', {
             value: albsg.ref,
@@ -61,6 +69,11 @@ export class SgStack extends Stack {
         new CfnOutput(this, 'Ec2DbSGId', {
             value: ec2dbsg.ref,
             exportName: 'Ec2DbSGId',
+        });
+
+        new CfnOutput(this, 'TransferSGId', {
+            value: transferSg.ref,
+            exportName: 'TransferSGId',
         });
     }
 }
