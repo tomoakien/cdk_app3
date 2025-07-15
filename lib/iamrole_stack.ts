@@ -46,6 +46,41 @@ export class IamRoleStack extends cdk.Stack {
       ]
     });
 
+    const ftpUserRole = new iam.CfnRole(this, 'FtpUserRole', {
+      roleName: 'FtpUserRole',
+      assumeRolePolicyDocument: {
+        Version: '2012-10-17',
+        Statement: [
+          {
+            Effect: 'Allow',
+            Principal: {
+              Service: 'transfer.amazonaws.com'
+            },
+            Action: 'sts:AssumeRole'
+          }
+        ]
+      },
+      policies: [
+        {
+          policyName: 'FtpUserPolicy',
+          policyDocument: {
+            Version: '2012-10-17',
+            Statement: [
+              {
+                Effect: 'Allow',
+                Action: [
+                  'elasticfilesystem:ClientMount',
+                  'elasticfilesystem:ClientWrite',
+                  'elasticfilesystem:ClientRootAccess',
+                ],
+                Resource: '*'
+              }
+            ]
+          }
+        }
+      ]
+    });
+
     const lambdaFtpRole =  new iam.CfnRole(this, 'LambdaFtpRole', {
       roleName: 'LambdaFtpRole',
       assumeRolePolicyDocument: {
@@ -108,6 +143,11 @@ export class IamRoleStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'LambdaFtpRoleArn', {
         value: lambdaFtpRole.attrArn,
         exportName: 'LambdaFtpRoleArn',
+    });
+
+    new cdk.CfnOutput(this, 'FtpUserRoleArn', {
+        value: ftpUserRole.attrArn,
+        exportName: 'FtpUserRoleArn',
     });
   }
 }

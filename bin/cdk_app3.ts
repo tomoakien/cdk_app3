@@ -10,7 +10,8 @@ import { AlbStack } from '../lib/alb_stack';
 import { VaultStack } from '../lib/vault_stack';
 import { LambdaStack } from '../lib/lambda_stack';
 import { EndpointStack } from '../lib/endpoint_stack';
-import { FtpStack } from '../lib/ftp_stack';
+import { KmsStack } from '../lib/kms_stack';
+import { TransferStack } from '../lib/transfer_stack';
 import { IamRoleStack } from '../lib/iamrole_stack';
 
 const env = {
@@ -29,7 +30,8 @@ new S3Stack(app, 'S3Stack', { env });
 new CloudWatchStack(app, 'CloudWatchStack', { env });
 new AlbStack(app, 'AlbStack', { env });
 new VaultStack(app, 'VaultStack', { env });
+new KmsStack(app, 'KmsStack', { env });
 new LambdaStack(app, 'LambdaStack', { env });
-new FtpStack(app, 'FtpStack', { env });
+new TransferStack(app, 'TransferStack', { env });
 
 

@@ -1,24 +1,11 @@
-import { Stack,StackProps,Fn } from "aws-cdk-lib";
+import { Stack,StackProps,Fn,CfnOutput } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import * as ssm from 'aws-cdk-lib/aws-ssm';
-import * as transfer from 'aws-cdk-lib/aws-transfer';
 import { CfnKey,CfnAlias } from 'aws-cdk-lib/aws-kms';
 import { CfnSecret } from 'aws-cdk-lib/aws-secretsmanager';
 
-export class FtpStack extends Stack {
+export class KmsStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
         super(scope, id, props);
-
-         // SSMパラメーターストアからLambda関数のARNを取得
-        const authlambdaarn = ssm.StringParameter.valueForStringParameter(this, '/cdk/lambda/autharn');
-        // VPCとサブネットの情報をインポート
-        const vpcId = Fn.importValue("VpcId");
-        const privateSubnetIds = [
-        Fn.importValue("PrivateSubnetId1"),
-        Fn.importValue("PrivateSubnetId2"),
-        ];
-        const transferSecurityGroupId = Fn.importValue("TransferSGId");
-        // const vpcEndpointId = Fn.importValue("TransferEndpointId");
 
         // KMSキーを作成
         //kmsではcloudformationのタグはつかない仕様
@@ -69,9 +56,11 @@ export class FtpStack extends Stack {
             targetKeyId: kmsKey.ref
         });
 
+        const secret_name = 'TransferAuthSecret'; // シークレット名を指定
+
         //secretsmanagerにFTPの認証情報を保存
-        const secret = new CfnSecret(this, "TransferAuthSecret", {
-            name: "TransferAuthSecret",
+        const secret = new CfnSecret(this, secret_name, {
+            name: secret_name,
             description: "This secret is used for transferring authentication",
             kmsKeyId: kmsKey.ref, // KMSキーを指定
             //手動で作成の為、secretの中身は作成しない。
@@ -86,24 +75,10 @@ export class FtpStack extends Stack {
         //依存関係を設定
         secret.addDependency(kmsKey);
 
-        // Transfer FamilyのFTPサーバーを作成
-        const transferServer = new transfer.CfnServer(this, 'TransferServer', {
-            identityProviderType: 'AWS_LAMBDA', // 認証方式を指定
-            identityProviderDetails: {
-                function: authlambdaarn, // Lambda関数のARNを指定                
-            },
-            domain: 'EFS',
-            protocols: ['FTP'], // FTPプロトコルを指定
-            endpointType: 'VPC', // エンドポイントのタイプを指定 VPC_ENDTYPEではない
-            endpointDetails: {
-                vpcId: vpcId, // VPC IDを指定
-                subnetIds: privateSubnetIds , // VPCエンドポイントを指定
-                securityGroupIds: [transferSecurityGroupId], // サブネットIDを指定
-            }
+        new CfnOutput(this, 'TransferAuthSecretArnOutput', {
+            value: secret_name,  // シークレットの名前を出力
+            description: 'Secrets Manager ARN for Transfer authentication',
+            exportName: secret_name // 他のスタックでインポート可能な名前を指定
         });
-
-        //依存関係を設定
-        transferServer.addDependency(secret);
-
     }
 }
